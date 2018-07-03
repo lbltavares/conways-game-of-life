@@ -2,34 +2,42 @@
 #define _GAME_H
 
 #include "SDL2/SDL.h"
+#include <vector>
+
+#define PLAY 0
+#define EDIT 1
 
 class Game
 {
-  private:
-    enum
-    {
-        mapWidthInTiles = 20,
-        mapHeightInTiles = 15,
-    };
-    int map[mapWidthInTiles][mapHeightInTiles];
-    int buffer[mapWidthInTiles][mapHeightInTiles];
+private:
+  int state;
 
-  public:
-    int mapAnchorX, mapAnchorY;
-    int mapXOffset, mapYOffset;
-    int tileWidth, tileHeight;
+private:
+  std::vector<std::vector<int>> map;
+  int grid;
 
-    Game();
-    ~Game();
+public:
+  int mapWidthInTiles;
+  int mapHeightInTiles;
+  int mapAnchorX, mapAnchorY;
+  int mapXOffset, mapYOffset;
+  int tileWidth, tileHeight;
 
-    void updateMapAnchor();
-    void setMap(int m[mapWidthInTiles][mapHeightInTiles], int v);
-    void bufferToMap();
+  Game();
+  ~Game();
 
-    void init();
-    void update();
-    void render(SDL_Renderer *renderer);
-    void quit();
+  void updateMapAnchor();
+  void randomMap();
+  void clearMap();
+  void toggleGrid();
+  void toggleState();
+
+  void init();
+  void update();
+  void play();
+  void edit();
+  void render(SDL_Renderer *renderer);
+  void quit();
 };
 
 #endif

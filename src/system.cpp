@@ -19,7 +19,7 @@ System::System()
         std::cout << "SDL_Init Error: " << SDL_GetError() << std::endl;
         exit(-1);
     }
-    window = SDL_CreateWindow("Conway's", SDL_WINDOWPOS_CENTERED,
+    window = SDL_CreateWindow("Conway's Game of Life", SDL_WINDOWPOS_CENTERED,
                               SDL_WINDOWPOS_CENTERED,
                               WIDTH, HEIGHT,
                               SDL_WINDOW_SHOWN);
@@ -75,6 +75,16 @@ void System::loop()
                     game.tileWidth -= 4;
                     game.tileHeight -= 4;
                 }
+
+                if (game.tileWidth < 4)
+                    game.tileWidth = 4;
+                if (game.tileWidth > 20)
+                    game.tileWidth = 20;
+
+                if (game.tileHeight < 4)
+                    game.tileHeight = 4;
+                if (game.tileHeight > 20)
+                    game.tileHeight = 20;
             }
             else if (event.type == SDL_MOUSEBUTTONDOWN)
             {
@@ -100,6 +110,25 @@ void System::loop()
                 }
                 else
                 {
+                }
+            }
+            else if (event.type == SDL_KEYUP)
+            {
+                if (event.key.keysym.sym == SDLK_g)
+                {
+                    game.toggleGrid();
+                }
+                else if (event.key.keysym.sym == SDLK_r)
+                {
+                    game.randomMap();
+                }
+                else if (event.key.keysym.sym == SDLK_SPACE)
+                {
+                    game.toggleState();
+                }
+                else if (event.key.keysym.sym == SDLK_c)
+                {
+                    game.clearMap();
                 }
             }
         }

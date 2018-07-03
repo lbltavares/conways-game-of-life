@@ -1,4 +1,7 @@
 #include <iostream>
+#include <vector>
+
+#include <ctime>
 
 #include "game.h"
 #include "System.h"
@@ -13,24 +16,89 @@ void Game::updateMapAnchor()
     mapAnchorY = mapYOffset;
 }
 
+void Game::toggleGrid()
+{
+    grid = !grid;
+}
+
+void Game::toggleState()
+{
+    state = !state;
+}
+
+void Game::clearMap()
+{
+    for (int x = 0; x < mapWidthInTiles; x++)
+    {
+        for (int y = 0; y < mapHeightInTiles; y++)
+        {
+            map[x][y] = 0;
+        }
+    }
+}
+
 void Game::init()
 {
     mapAnchorX = 0;
     mapAnchorY = 0;
     mapXOffset = 0;
     mapYOffset = 0;
+    grid = 1;
+    state = PLAY;
+
+    mapWidthInTiles = 50;
+    mapHeightInTiles = 30;
 
     tileWidth = 20;
     tileHeight = 20;
 
-    setMap(map, 0);
+    srand(time(NULL));
+    for (int x = 0; x < mapWidthInTiles; x++)
+    {
+        std::vector<int> row;
+        for (int y = 0; y < mapHeightInTiles; y++)
+        {
+            row.push_back(0);
+        }
+        map.push_back(row);
+    }
+}
 
-    
+void Game::randomMap()
+{
+    for (int x = 0; x < mapWidthInTiles; x++)
+    {
+        for (int y = 0; y < mapHeightInTiles; y++)
+        {
+            map[x][y] = rand() % 2;
+        }
+    }
 }
 
 void Game::update()
 {
-    setMap(buffer, 0);
+    if (state == PLAY)
+    {
+        play();
+    }
+    else if (state == EDIT)
+    {
+        edit();
+    }
+}
+
+void Game::play()
+{
+    std::vector<std::vector<int>> buffer;
+    for (int x = 0; x < mapWidthInTiles; x++)
+    {
+        std::vector<int> row;
+        for (int y = 0; y < mapHeightInTiles; y++)
+        {
+            row.push_back(0);
+        }
+        buffer.push_back(row);
+    }
 
     for (int y = 0; y < mapHeightInTiles; y++)
     {
@@ -42,51 +110,60 @@ void Game::update()
                 for (int xx = -1; xx <= 1; xx++)
                 {
                     if (xx == 0 && yy == 0)
-                    {
-                        std::cout << map[x][y];
                         continue;
-                    }
-                    int tgtx = (x + xx) % mapWidthInTiles;
-                    int tgty = (y + yy) % mapHeightInTiles;
-                    sum += map[tgtx][tgty];
 
-                    std::cout << map[tgtx][tgty];
+                    int tx = (((x + xx) % mapWidthInTiles) + mapWidthInTiles) % mapWidthInTiles;
+                    int ty = (((y + yy) % mapHeightInTiles) + mapHeightInTiles) % mapHeightInTiles;
+                    sum += map[tx][ty];
                 }
-                std::cout << std::endl;
-            }
-            int alive = buffer[x][y];
-            if (sum < 2 && alive)
-            {
-                buffer[x][y] = 0;
-            }
-            else if (sum > 3 && alive)
-            {
-                buffer[x][y] = 0;
-            }
-            else if (sum == 3 && !alive)
-            {
-                buffer[x][y] = 1;
             }
 
-            std::cin.get();
+            int alive = map[x][y];
+            if (alive)
+            {
+                if (sum == 2 || sum == 3)
+                    buffer[x][y] = 1;
+                else
+                    buffer[x][y] = 0;
+            }
+            else
+            {
+                if (sum == 3)
+                    buffer[x][y] = 1;
+            }
         }
     }
 
-    bufferToMap();
+    for (int x = 0; x < mapWidthInTiles; x++)
+    {
+        for (int y = 0; y < mapHeightInTiles; y++)
+        {
+            map[x][y] = buffer[x][y];
+        }
+    }
+}
+
+void Game::edit()
+{
 }
 
 void Game::render(SDL_Renderer *renderer)
 {
+    SDL_SetRenderDrawColor(renderer, 30, 30, 30, 255);
+    System::fillRect(mapXOffset, mapYOffset, tileWidth * mapWidthInTiles, tileHeight * mapHeightInTiles);
+
     for (int y = 0; y < mapHeightInTiles; y++)
     {
         for (int x = 0; x < mapWidthInTiles; x++)
         {
             if (map[x][y] == 1)
             {
+                SDL_SetRenderDrawColor(renderer, 150, 150, 150, 255);
                 System::fillRect(mapXOffset + x * tileWidth, mapYOffset + y * tileHeight, tileWidth, tileHeight);
             }
-            else
+            if (grid)
             {
+                SDL_SetRenderDrawColor(renderer, 100, 100, 100, 255);
                 System::drawRect(mapXOffset + x * tileWidth, mapYOffset + y * tileHeight, tileWidth, tileHeight);
             }
         }
@@ -95,26 +172,4 @@ void Game::render(SDL_Renderer *renderer)
 
 void Game::quit()
 {
-}
-
-void Game::setMap(int m[mapWidthInTiles][mapHeightInTiles], int v)
-{
-    for (int y = 0; y < mapHeightInTiles; y++)
-    {
-        for (int x = 0; x < mapWidthInTiles; x++)
-        {
-            m[x][y] = v;
-        }
-    }
-}
-
-void Game::bufferToMap()
-{
-    for (int y = 0; y < mapHeightInTiles; y++)
-    {
-        for (int x = 0; x < mapWidthInTiles; x++)
-        {
-            map[x][y] = buffer[x][y];
-        }
-    }
 }
