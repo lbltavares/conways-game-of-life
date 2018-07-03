@@ -63,10 +63,24 @@ void System::loop()
             {
                 running = SDL_FALSE;
             }
+            else if (event.type == SDL_MOUSEWHEEL)
+            {
+                if (event.wheel.y > 0) // scroll up
+                {
+                    game.tileWidth += 4;
+                    game.tileHeight += 4;
+                }
+                else if (event.wheel.y < 0) // scroll down
+                {
+                    game.tileWidth -= 4;
+                    game.tileHeight -= 4;
+                }
+            }
             else if (event.type == SDL_MOUSEBUTTONDOWN)
             {
                 mouseAnchorX = event.motion.x;
                 mouseAnchorY = event.motion.y;
+                game.updateMapAnchor();
                 draggin = 1;
             }
             else if (event.type == SDL_MOUSEBUTTONUP)
@@ -81,12 +95,8 @@ void System::loop()
                     int my = event.motion.y;
                     int dx = mx - mouseAnchorX;
                     int dy = my - mouseAnchorY;
-
-                    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-                    SDL_RenderClear(renderer);
-                    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-                    SDL_RenderDrawLine(renderer, mouseAnchorX, mouseAnchorY, mx, my);
-                    SDL_RenderPresent(renderer);
+                    game.mapXOffset = game.mapAnchorX + dx;
+                    game.mapYOffset = game.mapAnchorY + dy;
                 }
                 else
                 {
@@ -112,7 +122,7 @@ void System::render()
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-    //game.render(renderer);
+    game.render(renderer);
     SDL_RenderPresent(renderer);
 }
 
