@@ -13,6 +13,7 @@ private:
 
   static SDL_Window *window;
   static SDL_Renderer *renderer;
+  static SDL_Texture *bg;
 
 public:
   static const int WIDTH, HEIGHT, FPS;

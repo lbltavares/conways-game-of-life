@@ -5,6 +5,7 @@ SDL_bool System::running = SDL_FALSE;
 
 SDL_Window *System::window = NULL;
 SDL_Renderer *System::renderer = NULL;
+SDL_Texture *System::bg = NULL;
 
 const int System::WIDTH = 640;
 const int System::HEIGHT = 480;
@@ -34,12 +35,16 @@ System::System()
         std::cout << "SDL_CreateRenderer Error: " << SDL_GetError() << std::endl;
         exit(-1);
     }
+    SDL_Surface *surf = SDL_LoadBMP("bg.bmp");
+    bg = SDL_CreateTextureFromSurface(renderer, surf);
+    SDL_FreeSurface(surf);
     mouseAnchorX = mouseAnchorY = draggin = 0;
 }
 
 System::~System()
 {
     std::cout << "Destructing..." << std::endl;
+    SDL_DestroyTexture(bg);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
@@ -132,7 +137,7 @@ void System::loop()
                 }
             }
         }
-        if (time + FPS > SDL_GetTicks())
+        if (time + 1000 / FPS > SDL_GetTicks())
             continue;
         time = SDL_GetTicks();
 
@@ -150,7 +155,8 @@ void System::render()
 {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    SDL_RenderCopy(renderer, bg, NULL, NULL);
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 0);
     game.render(renderer);
     SDL_RenderPresent(renderer);
 }

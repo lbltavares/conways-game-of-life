@@ -46,8 +46,8 @@ void Game::init()
     grid = 1;
     state = PLAY;
 
-    mapWidthInTiles = 50;
-    mapHeightInTiles = 30;
+    mapWidthInTiles = 150;
+    mapHeightInTiles = 100;
 
     tileWidth = 20;
     tileHeight = 20;
@@ -70,7 +70,10 @@ void Game::randomMap()
     {
         for (int y = 0; y < mapHeightInTiles; y++)
         {
-            map[x][y] = rand() % 2;
+            if (rand() % 20 == 1)
+                map[x][y] = 1;
+            else
+                map[x][y] = 0;
         }
     }
 }
@@ -149,22 +152,22 @@ void Game::edit()
 
 void Game::render(SDL_Renderer *renderer)
 {
-    SDL_SetRenderDrawColor(renderer, 30, 30, 30, 255);
-    System::fillRect(mapXOffset, mapYOffset, tileWidth * mapWidthInTiles, tileHeight * mapHeightInTiles);
+    SDL_SetRenderDrawColor(renderer, 30, 30, 30, 0);
+    System::drawRect(mapXOffset, mapYOffset, tileWidth * mapWidthInTiles, tileHeight * mapHeightInTiles);
 
     for (int y = 0; y < mapHeightInTiles; y++)
     {
         for (int x = 0; x < mapWidthInTiles; x++)
         {
-            if (map[x][y] == 1)
-            {
-                SDL_SetRenderDrawColor(renderer, 150, 150, 150, 255);
-                System::fillRect(mapXOffset + x * tileWidth, mapYOffset + y * tileHeight, tileWidth, tileHeight);
-            }
             if (grid)
             {
-                SDL_SetRenderDrawColor(renderer, 100, 100, 100, 255);
+                SDL_SetRenderDrawColor(renderer, 100, 100, 100, 20);
                 System::drawRect(mapXOffset + x * tileWidth, mapYOffset + y * tileHeight, tileWidth, tileHeight);
+            }
+            if (map[x][y] == 1)
+            {
+                SDL_SetRenderDrawColor(renderer, 150, 150, 150, 20);
+                System::fillRect(mapXOffset + x * tileWidth, mapYOffset + y * tileHeight, tileWidth, tileHeight);
             }
         }
     }
